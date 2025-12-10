@@ -1,29 +1,30 @@
-# 1️⃣ Imagen base: PHP con Apache
+# Imagen base PHP con Apache
 FROM php:8.2-apache
 
-# 2️⃣ Instalar extensiones necesarias para Laravel y GD
+# Instalar dependencias de Laravel y GD
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
-    zip unzip git curl \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install gd pdo pdo_mysql
+    zip unzip git curl && \
+    docker-php-ext-configure gd --with-freetype --with-jpeg && \
+    docker-php-ext-install gd pdo pdo_mysql && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# 3️⃣ Instalar Composer
+# Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# 4️⃣ Configurar directorio de trabajo
+# Establecer directorio de trabajo
 WORKDIR /var/www/html
 
-# 5️⃣ Copiar todo tu proyecto al contenedor
+# Copiar todo el proyecto
 COPY . .
 
-# 6️⃣ Instalar dependencias PHP con Composer
+# Instalar dependencias de Laravel
 RUN composer install --no-interaction --optimize-autoloader
 
-# 7️⃣ Exponer el puerto que usa Railway
+# Exponer el puerto para Railway
 EXPOSE 8080
 
-# 8️⃣ Start command de Laravel
+# Comando para iniciar Laravel
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
